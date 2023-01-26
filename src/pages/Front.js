@@ -1,9 +1,15 @@
 import React from 'react';
+import LeftSidenav from '../components/leftSidenav';
+import RightSidenav from '../components/rightSidenav';
+import Iframe from '../components/iFrame';
+
 
 function Front() {
     return (
         <div>
-            <h1>This is the Front page</h1>
+            <RightSidenav/>
+            <Iframe/>
+            <LeftSidenav/>
         </div>
     )
 }
