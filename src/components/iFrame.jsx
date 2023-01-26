@@ -5,7 +5,7 @@ class Iframe extends Component {
     render() {
         return (
             <div>
-               <div class="container">
+               <div class="container center-column">
                  <div class="row">
                    <div class="col s3">
                    </div>
