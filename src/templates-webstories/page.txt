@@ -1,0 +1,10 @@
+<amp-story-page id="page<!--key-->">
+  <amp-story-grid-layer template="vertical">
+    <h1><!--titulo--></h1>
+    <amp-img src="<!--img-->"
+        width="720" height="1280"
+        layout="responsive">
+    </amp-img>
+    <p><!--texto--></p>
+  </amp-story-grid-layer>
+</amp-story-page>
