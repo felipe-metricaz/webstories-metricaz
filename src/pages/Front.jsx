@@ -1,7 +1,7 @@
 import React from 'react';
-import LeftSidenav from '../components/leftSidenav';
+import LeftSidenav from '../components/leftsidenav';
 import RightSidenav from '../components/rightSidenav';
-import Iframe from '../components/iFrame';
+import Iframe from '../components/iframe';
 
 
 function Front() {
