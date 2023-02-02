@@ -7,7 +7,7 @@ const path = require("path");
 // setup multer for file upload
 var storage = multer.diskStorage(
     {
-        destination: './public/uploads',
+        destination: './uploads',
         filename: function (req, file, cb ) {
             cb( null, file.originalname);
         }
@@ -18,7 +18,13 @@ const upload = multer({ storage: storage } )
 
 app.use(express.json());
 // serving front end build files
-app.use(express.static(__dirname + "/../public/uploads"));
+app.use(express.static(__dirname + "/../uploads"));
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
+    next();
+});
 
 // route for file upload
 app.get("/img/:img", (req, res) => {
@@ -29,7 +35,7 @@ app.get("/img/:img", (req, res) => {
             return;
     }
     var imgName = req.params.img;
-    var filePath ='public/uploads/' + imgName;
+    var filePath ='uploads/' + imgName;
 
     fs.exists(filePath, function (exists) {
          if (!exists) {
@@ -56,10 +62,20 @@ app.get("/img/:img", (req, res) => {
         });
     });
 });
-app.post("/api/uploadfile", upload.single('myFile'), (req, res, next) => {
+app.post("/uploadimage", upload.single('myFile'), (req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     console.log(req.file.originalname + " file successfully uploaded !!");
+    res.sendStatus(200);
+});
+app.post("/savejson", (req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
+    var body = '';
+    var fileName = '';
+    console.log('aaa');
+
     res.sendStatus(200);
 });
 
