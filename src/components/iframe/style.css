@@ -1,0 +1,31 @@
+/* Container */
+
+.center-column{
+    display: grid;
+    justify-items: center;
+    max-width: 740px;
+  }
+  
+
+/*   Tabs */
+  .tabs .tab a.active{
+    color: black;
+  }
+  
+  .tabs .indicator{
+    background-color: #ffc107;
+  }
+
+  
+  .tabs .tab a{
+    color: black;
+  }
+
+    
+  .tabs .tab a:hover{
+    color: #ffc107;
+  }
+
+  .tabs{
+    max-width: 200px;
+  }
