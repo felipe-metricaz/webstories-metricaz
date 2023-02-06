@@ -1,4 +1,5 @@
 const express = require("express");
+var bodyParser = require('body-parser');
 const app = express();
 const multer  = require('multer');
 const fs = require("fs");
@@ -17,6 +18,7 @@ var storage = multer.diskStorage(
 const upload = multer({ storage: storage } )
 
 app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 // serving front end build files
 app.use(express.static(__dirname + "/../uploads"));
 app.use(function(req, res, next) {
@@ -72,11 +74,44 @@ app.post("/savejson", (req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
-    var body = '';
-    var fileName = '';
-    console.log('aaa');
-
-    res.sendStatus(200);
+    var fileName = req.body.filename;
+    var json = req.body.json;
+    fs.writeFile(fileName+'.json', json, function (err) {
+        if (err){
+            res.sendStatus(500);
+        };
+        res.sendStatus(200);
+    });
+});
+app.get("/getclientes", (req, res) => {
+    fs.exists('clientes.json', function (exists) {
+         if (!exists) {
+            res.json({});
+            return;
+        }
+        var contentType = "application/json";
+        res.writeHead(200, {
+            "Content-Type": contentType });
+ 
+        fs.readFile('clientes.json',
+            function (err, content) {
+                res.end(content);
+        });
+    });
+});
+app.post("/saveclientes", (req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    var clientes = req.body.clientes;
+    if(!clientes){
+        res.sendStatus(500);
+    }
+    fs.writeFile('clientes.json', clientes, function (err) {
+        if (err){
+            res.sendStatus(500);
+        };
+        res.sendStatus(200);
+    });
 });
 
 app.listen(3001, () => console.log("Listening on port 3001"));

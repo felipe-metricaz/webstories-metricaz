@@ -5,15 +5,21 @@ import  '../css/back.css';
 import webstories_base from '../templates-webstories/body.txt';
 import webstoriespage_base from '../templates-webstories/page.txt';
 
-class Back extends React.Component {
+class Back extends React.Component { 
 
     constructor() {
         super();
         this.state = {
+            clientes: this.arrClientes,
             webstorie: this.objWebStorie,
             showcode: '',
             areacode: '',
         };
+        fetch("http://localhost:3001/getclientes").then(r => r.text()).then(text => {
+            if(!text){ return; }
+            this.arrClientes = JSON.parse(text);
+            this.setState({ clientes: this.arrClientes});
+        });
         fetch(webstories_base).then(r => r.text()).then(text => {
             webstories_base = text ;
         });
@@ -24,8 +30,16 @@ class Back extends React.Component {
 
     }
 
+    arrClientes = [];
+    tplCliente = {
+        name: '',
+        webStories: []
+    };
+
     objWebStorie = {
-        name: 'ass',
+        id:'',
+        cliente: '',
+        name: '',
         cover: {
             img: '',
             titulo: '',
@@ -38,13 +52,32 @@ class Back extends React.Component {
     handleClick = (event) => {
 
         this.sendJson();
-
         this.atualizaCodigo();
     }; 
 
     plusPageClick = (event) => {
+        
         this.objWebStorie.pages.push({image:'', text1:'', text2:''});
         this.setState({ webstorie: this.objWebStorie}, function () {
+        });
+    };
+
+    newCLiente = (event) => {
+        var name = document.getElementById("nomeNovoCliente").value;
+        if(name==""){
+            alert('Campo requerido');
+            return;
+        }
+        document.getElementById("nomeNovoCliente").value = '';
+        this.arrClientes.push({name: name,webStories: []});
+        this.setState({ clientes: this.arrClientes}, function () {
+            const formData = new FormData();
+            formData.append('clientes', JSON.stringify(this.state.clientes));
+            axios.post("http://localhost:3001/saveclientes", formData, {
+              headers: {
+               'content-type': 'application/json',
+              },
+            }).then();
         });
     };
 
@@ -77,7 +110,7 @@ class Back extends React.Component {
         formData.append('json', JSON.stringify(this.state.webstorie));
         axios.post("http://localhost:3001/savejson", formData, {
           headers: {
-           'content-type': 'text/json',
+           'content-type': 'application/json',
           },
         }).then();
     }
@@ -126,10 +159,17 @@ class Back extends React.Component {
             <div>
                 <p><b>Projetos</b></p>
                 <ul>
-                    <li>Webstorie-#1</li>
-                    <li>Webstorie-#2</li>
-                    <li>Webstorie-#3</li>
+                {this.state.clientes.map((cli, i) => (
+                    <li key={i}>
+                        {cli.name}
+                    </li>
+                ))}
+                    
                 </ul>
+                <div>
+                    <input id="nomeNovoCliente" type="text" />
+                    <button onClick={this.newCLiente} >Novo CLiente</button>
+                </div>
             </div>
             <div><iframe id="iframestorie" width="360" height="640" src={this.state.showcode} ></iframe></div>
             <div><textarea name="" id="areacodigo" cols="30" value={this.state.areacode} rows="10" /></div>
