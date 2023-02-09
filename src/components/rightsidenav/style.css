@@ -1,3 +1,28 @@
 .input-box{
-    padding: 100px 35px;
+    padding: 20% 5%;
+}
+
+.download, .select-img{
+    display: grid;
+    justify-items: center;
+}
+
+.btn{
+    height: 3rem;
+    line-height: 3rem;
+    border-radius: 15px;
+}
+
+.file-path-wrapper{
+    display: none;
+}
+
+.download, .select-img, .description{
+    margin-top: 15%;
+}
+
+
+
+.download{
+    margin-top: 40%;
 }
