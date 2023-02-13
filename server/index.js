@@ -76,11 +76,35 @@ app.post("/savejson", (req, res, next) => {
     res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
     var fileName = req.body.filename;
     var json = req.body.json;
-    fs.writeFile(fileName+'.json', json, function (err) {
+    fs.writeFile('base/'+fileName+'.json', json, function (err) {
         if (err){
             res.sendStatus(500);
         };
         res.sendStatus(200);
+    });
+});
+app.get("/getwebstores/:id", (req, res) => {
+    if(!req.params.id){
+        res.writeHead(404, {
+                "Content-Type": "text/plain" });
+        res.end("404 params Not Found");
+        return;
+    }
+    var jsonName = req.params.id;
+    var filePath ='base/' + jsonName+'.json';
+    fs.exists(filePath, function (exists) {
+         if (!exists) {
+            res.json({});
+            return;
+        }
+        var contentType = "application/json";
+        res.writeHead(200, {
+            "Content-Type": contentType });
+ 
+        fs.readFile(filePath,
+            function (err, content) {
+                res.end(content);
+        });
     });
 });
 app.get("/getclientes", (req, res) => {
