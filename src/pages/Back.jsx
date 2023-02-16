@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from "react-dom";
 import axios from 'axios';
 import { useState } from 'react';
 import  '../css/back.css';
@@ -44,13 +45,43 @@ class Back extends React.Component {
         cover: {
             img: '',
             titulo: '',
-            subtitulo: ''
+            subtitulo: '',
+            extra: []
         },
         pages: []
     };
 
+    /*objWebStorie = {
+        id:'',
+        cliente: {},
+        name: '',
+        cover: [],
+        pages: []
+    };*/
 
 
+
+    renderInput = (tipo) => {
+        var change = null;
+        if(tipo=='upload'){
+            change = this.handleFileChange;
+        } else {
+            change = this.changeInput;
+        }
+        var t = this.objWebStorie.cover.extra.length;
+        this.objWebStorie.cover.extra.push(
+            {
+              type: tipo,  
+              name: 'cover.extra.'+t+'.value',
+              placeholder: 'teste',
+              value: this.state.webstorie.cover.titulo,
+              change: change
+            }
+        );
+        this.setState({ webstorie: this.objWebStorie}, function () {
+           
+        });
+    };
 
     plusPageClick = (event) => {
         
@@ -87,7 +118,11 @@ class Back extends React.Component {
         for (var member in this.objWebStorie){
             if(typeof this.objWebStorie[member] === 'object'){
                 for (var m in this.objWebStorie[member]){
-                    this.objWebStorie[member][m] = '';
+                    if(Array.isArray(this.objWebStorie[member][m])){
+                        this.objWebStorie[member][m] = [];
+                    } else {
+                        this.objWebStorie[member][m] = '';
+                    }
                 }
             }  else{
                 this.objWebStorie[member] = '';
@@ -202,8 +237,10 @@ class Back extends React.Component {
         if(objTest !== null){
             eval('this.objWebStorie.' +name+ ' = "'+valor+'"');
         }
+        console.log('this.objWebStorie.' +name+ ' = "'+valor+'"');
+        console.log(this.objWebStorie);
         this.setState({webstorie: this.objWebStorie}, function () {
-            this.atualizaCodigo();
+           // this.atualizaCodigo();
             if(name == 'name' && this.objWebStorie.id != ''){
                 for (var web in this.arrClientes[this.objWebStorie.cliente.id].webStories){
                     if(this.arrClientes[this.objWebStorie.cliente.id].webStories[web].id==this.objWebStorie.id){
@@ -245,11 +282,10 @@ class Back extends React.Component {
                 <textarea style={{display: "none"}} name="" id="areacodigo" value={this.state.areacode}  />
             </div>
             <div>
-                <DynamicInput name={"teste"} />
                 <label>
                     <input name="name" value={this.state.webstorie.name} onChange={this.changeInput} placeholder="Titulo do WebStorie" type="text" />
                 </label>
-                <fieldset>
+                <fieldset id="coverfield">
                     <legend>Capa</legend>
                     <label>
                         Imagem de fundo <br />
@@ -258,9 +294,14 @@ class Back extends React.Component {
                     <label>
                         <input name="cover.titulo" value={this.state.webstorie.cover.titulo} onChange={this.changeInput} placeholder="Titulo" type="text" />
                     </label>  
-                    <label>
-                        <input name="cover.subtitulo" value={this.state.webstorie.cover.subtitulo} onChange={this.changeInput} placeholder="Subtítulo" type="text" />
-                    </label>  
+                    {this.state.webstorie.cover.extra.map((extra, i) => (
+                         <DynamicInput key={i} state={this.state} type={extra.type} name={extra.name} placeholder={extra.placeholder} value={extra.value} change={extra.change} />
+                
+                    ))} 
+                    
+                    <button onClick={() => this.renderInput('text')} >Titulo</button>
+                    <button onClick={() => this.renderInput('textarea')} >Paragrafo</button>
+                    <button onClick={() => this.renderInput('upload')} >Imagem</button> 
                 </fieldset>
                 
                 

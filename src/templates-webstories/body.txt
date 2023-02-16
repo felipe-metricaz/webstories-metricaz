@@ -39,10 +39,10 @@
               layout="responsive">
           </amp-img>
         </amp-story-grid-layer>
-        <amp-story-grid-layer template="thirds">
+        <amp-story-grid-layer template="vertical">
           
-          <div grid-area="middle-third"><!--titulo--></div>
-          <div grid-area="lower-third"><!--subtitulo--></div>
+          <div><!--titulo--></div>
+          <div><!--subtitulo--></div>
         </amp-story-grid-layer>
       </amp-story-page>
 
