@@ -2,37 +2,21 @@ import React, { Component } from "react";
 import { useState } from 'react';
 
 class DynamicInput extends React.Component {
-
-    constructor({type,name,value,placeholder,change,state}) {
-        super();
-        this.state = {
-            type: type,
-            name: name,
-            value: state.webstorie.cover.titulo,
-            placeholder: placeholder,
-            change: change
-        };
-        console.log('aaa');
-    }
-
-
-
     render() {
-
         return <div>
         {(() => {
-            switch (this.state.type) { 
+            switch (this.props.input.type) { 
               case 'text':
                 return <label>
-                <input name={this.state.name} value={this.state.value} onChange={this.state.change} placeholder={this.state.placeholder} type="text" />
+                <input name={this.props.input.name} value={this.props.input.value} onChange={this.props.input.change} placeholder={this.props.input.placeholder} type="text" />
                 </label>
               case 'textarea':
                 return <label>
-                <textarea name={this.state.name} onChange={this.state.change} placeholder={this.state.placeholder} cols="30" rows="10">{this.state.value}</textarea>
+                <textarea name={this.props.input.name} onChange={this.props.input.change} placeholder={this.props.input.placeholder} cols="30" rows="10">{this.props.input.value}</textarea>
                 </label>
               case 'upload':
                 return <label>
-                <input name={this.state.name} id={this.state.name} onChange={this.state.change} type="file" />
+                <input name={this.props.input.name} id={this.props.input.name} onChange={this.props.input.change} type="file" />
                 </label>
               default:
                 return null

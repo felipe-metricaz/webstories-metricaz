@@ -51,36 +51,26 @@ class Back extends React.Component {
         pages: []
     };
 
-    /*objWebStorie = {
-        id:'',
-        cliente: {},
-        name: '',
-        cover: [],
-        pages: []
-    };*/
-
-
-
     renderInput = (tipo) => {
-        var change = null;
-        if(tipo=='upload'){
-            change = this.handleFileChange;
-        } else {
-            change = this.changeInput;
-        }
         var t = this.objWebStorie.cover.extra.length;
         this.objWebStorie.cover.extra.push(
             {
               type: tipo,  
               name: 'cover.extra.'+t+'.value',
               placeholder: 'teste',
-              value: this.state.webstorie.cover.titulo,
-              change: change
+              value: '',
             }
         );
-        this.setState({ webstorie: this.objWebStorie}, function () {
-           
-        });
+                
+        this.setState({ webstorie: this.objWebStorie});
+    };
+
+    setChangeTrigger = (tipo) => {
+        if(tipo=='upload'){
+            return this.handleFileChange;
+        }
+        return this.changeInput;
+        
     };
 
     plusPageClick = (event) => {
@@ -147,29 +137,64 @@ class Back extends React.Component {
     };
 
     handleFileChange = (e) => {
+
         const formData = new FormData();
         let fileName = e.target.files[0].name;
         var idWebstore = this.setId();
-        if(e.target.id == 'imgcover'){
-            fileName = idWebstore+'-cover.'+fileName.substr(fileName.length - 3);
-            this.objWebStorie.cover.img = 'http://localhost:3001/img/'+fileName;
- 
+        var saveValue = '';
+
+        fileName = idWebstore+'-'+e.target.id+'.'+fileName.substr(fileName.length - 3);
+        if(e.target.name == 'cover.img'){
+            saveValue = 'http://localhost:3001/img/'+fileName;
         } else {
             var id = e.target.getAttribute('index');
-            fileName = idWebstore+'-page'+id+'.'+fileName.substr(fileName.length - 3);
-            this.objWebStorie.pages[id].image = 'http://localhost:3001/img/'+fileName;    
+            saveValue = 'http://localhost:3001/img/'+fileName;    
         }
+        
         formData.append('myFile', e.target.files[0],fileName);
-
         axios.post("http://localhost:3001/uploadimage", formData, {
           headers: {
             "content-type": "multipart/form-data",
           },
-        }).then(response => (this.atualizaCodigo()))
+        }).then(response => {
+            this.atualizaCodigo();
+            let fakeE = {
+                target: {
+                    name: e.target.name,
+                    value: saveValue
+                }
+            };
+            this.changeInput(fakeE);
+        })
         
-        this.setState({webstorie: this.objWebStorie}, function () {});
-    };
 
+        
+    };
+    changeInput = (e) => {
+        var name = e.target.name;
+        var valor = e.target.value;
+        var objTest  = name.split('.').reduce(function(prev, curr) {
+            if(!isNaN(curr) && prev[curr] !== undefined){
+                name = name.replace('.'+curr, '['+curr+']');
+                return prev[curr];
+            }
+            return prev.hasOwnProperty(curr) ? prev[curr] : null
+        }, this.objWebStorie); 
+        if(objTest !== null){
+            eval('this.objWebStorie.' +name+ ' = "'+valor+'"');
+        }
+        this.setState({webstorie: this.objWebStorie}, function () {
+            this.atualizaCodigo();
+            if(name == 'name' && this.objWebStorie.id != ''){
+                for (var web in this.arrClientes[this.objWebStorie.cliente.id].webStories){
+                    if(this.arrClientes[this.objWebStorie.cliente.id].webStories[web].id==this.objWebStorie.id){
+                        this.arrClientes[this.objWebStorie.cliente.id].webStories[web].name = valor;
+                    }
+                }
+                this.updateCLiente();
+            }
+        });
+    };
     setId = () => {
         if(this.state.webstorie.id != ''){
             return this.state.webstorie.id;
@@ -208,6 +233,16 @@ class Back extends React.Component {
         processCode = processCode.replaceAll('<!--titulo-->','<h1>'+this.state.webstorie.cover.titulo+'</h1>')
         processCode = processCode.replaceAll('<!--subtitulo-->','<p>'+this.state.webstorie.cover.subtitulo+'</p>')
         
+        var processCoverExtra = '';
+        for (var i=0;i < this.state.webstorie.cover.extra.length;i++){
+            let extra = this.state.webstorie.cover.extra[i];
+            processCoverExtra += '<div>'+extra.value+'</div>'
+        };
+
+        processCode = processCode.replaceAll('<!--extra-->',processCoverExtra);
+
+
+
         var processPages = '';
         for (var i=0;i < this.state.webstorie.pages.length;i++){
             processPages += webstoriespage_base
@@ -224,34 +259,7 @@ class Back extends React.Component {
         this.sendJson();
     }
 
-    changeInput = (e) => {
-        var name = e.target.name;
-        var valor = e.target.value;
-        var objTest  = name.split('.').reduce(function(prev, curr) {
-            if(!isNaN(curr) && prev[curr] !== undefined){
-                name = name.replace('.'+curr, '['+curr+']');
-                return prev[curr];
-            }
-            return prev.hasOwnProperty(curr) ? prev[curr] : null
-        }, this.objWebStorie); 
-        if(objTest !== null){
-            eval('this.objWebStorie.' +name+ ' = "'+valor+'"');
-        }
-        console.log('this.objWebStorie.' +name+ ' = "'+valor+'"');
-        console.log(this.objWebStorie);
-        this.setState({webstorie: this.objWebStorie}, function () {
-           // this.atualizaCodigo();
-            if(name == 'name' && this.objWebStorie.id != ''){
-                for (var web in this.arrClientes[this.objWebStorie.cliente.id].webStories){
-                    if(this.arrClientes[this.objWebStorie.cliente.id].webStories[web].id==this.objWebStorie.id){
-                        this.arrClientes[this.objWebStorie.cliente.id].webStories[web].name = valor;
-                    }
-                }
-                this.updateCLiente();
-            }
-        });
-
-    };
+    
 
     
 
@@ -289,15 +297,15 @@ class Back extends React.Component {
                     <legend>Capa</legend>
                     <label>
                         Imagem de fundo <br />
-                        <input id="imgcover" placeholder="Imagem" type="file" onChange={this.handleFileChange} />
+                        <input name="cover.img" placeholder="Imagem" type="file" onChange={this.handleFileChange} />
                     </label>
                     <label>
                         <input name="cover.titulo" value={this.state.webstorie.cover.titulo} onChange={this.changeInput} placeholder="Titulo" type="text" />
                     </label>  
-                    {this.state.webstorie.cover.extra.map((extra, i) => (
-                         <DynamicInput key={i} state={this.state} type={extra.type} name={extra.name} placeholder={extra.placeholder} value={extra.value} change={extra.change} />
-                
-                    ))} 
+                    {this.state.webstorie.cover.extra.map((extra, i) => {
+                        extra.change = this.setChangeTrigger(extra.type);
+                        return <DynamicInput key={i} input={extra} />            
+                    })} 
                     
                     <button onClick={() => this.renderInput('text')} >Titulo</button>
                     <button onClick={() => this.renderInput('textarea')} >Paragrafo</button>
@@ -308,7 +316,7 @@ class Back extends React.Component {
                 {this.state.webstorie.pages.map((page, i) => (
                   <div key={i}>
                     <label>
-                        <input index={i} id={"img"+i} name="image" placeholder="Imagem" type="file" onChange={this.handleFileChange} />
+                        <input index={i} id={"page"+i} name="image" placeholder="Imagem" type="file" onChange={this.handleFileChange} />
                     </label>
                     <label>
                     <input name={"pages."+i+".text1"} value={this.state.webstorie.pages[i].text1} onChange={this.changeInput} placeholder="Texto" type="text" />
