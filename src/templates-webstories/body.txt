@@ -42,7 +42,6 @@
         <amp-story-grid-layer template="vertical">
           
           <div><!--titulo--></div>
-          <div><!--subtitulo--></div>
           <!--extra-->
         </amp-story-grid-layer>
       </amp-story-page>

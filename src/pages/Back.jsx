@@ -31,7 +31,6 @@ class Back extends React.Component {
     }
 
 
-
     arrClientes = [];
     tplCliente = {
         name: '',
@@ -51,12 +50,12 @@ class Back extends React.Component {
         pages: []
     };
 
-    renderInput = (tipo) => {
-        var t = this.objWebStorie.cover.extra.length;
-        this.objWebStorie.cover.extra.push(
+    renderInput = (obj, tipo, name) => {
+        var t = obj.extra.length;
+        obj.extra.push(
             {
               type: tipo,  
-              name: 'cover.extra.'+t+'.value',
+              name: name+'.'+t+'.value',
               placeholder: 'teste',
               value: '',
             }
@@ -70,12 +69,11 @@ class Back extends React.Component {
             return this.handleFileChange;
         }
         return this.changeInput;
-        
     };
 
     plusPageClick = (event) => {
         
-        this.objWebStorie.pages.push({image:'', text1:'', text2:''});
+        this.objWebStorie.pages.push({extra:[]});
         this.setState({ webstorie: this.objWebStorie}, function () {
         });
     };
@@ -147,7 +145,6 @@ class Back extends React.Component {
         if(e.target.name == 'cover.img'){
             saveValue = 'http://localhost:3001/img/'+fileName;
         } else {
-            var id = e.target.getAttribute('index');
             saveValue = 'http://localhost:3001/img/'+fileName;    
         }
         
@@ -157,7 +154,6 @@ class Back extends React.Component {
             "content-type": "multipart/form-data",
           },
         }).then(response => {
-            this.atualizaCodigo();
             let fakeE = {
                 target: {
                     name: e.target.name,
@@ -167,9 +163,9 @@ class Back extends React.Component {
             this.changeInput(fakeE);
         })
         
-
         
     };
+
     changeInput = (e) => {
         var name = e.target.name;
         var valor = e.target.value;
@@ -231,25 +227,49 @@ class Back extends React.Component {
         var processCode = webstories_base;
         processCode = processCode.replaceAll('<!--imgcover-->',this.state.webstorie.cover.img)
         processCode = processCode.replaceAll('<!--titulo-->','<h1>'+this.state.webstorie.cover.titulo+'</h1>')
-        processCode = processCode.replaceAll('<!--subtitulo-->','<p>'+this.state.webstorie.cover.subtitulo+'</p>')
         
         var processCoverExtra = '';
         for (var i=0;i < this.state.webstorie.cover.extra.length;i++){
             let extra = this.state.webstorie.cover.extra[i];
-            processCoverExtra += '<div>'+extra.value+'</div>'
+            switch (extra.type) {
+                case 'upload':
+                    processCoverExtra += '<img src="'+extra.value+'" />'
+                break;
+                case 'text':
+                    processCoverExtra += '<h2>'+extra.value+'</h2>'
+                break;
+                case 'textarea':
+                    processCoverExtra += '<p>'+extra.value+'</p>'
+                break;
+                default:
+                    processCoverExtra += '<div>'+extra.value+'</div>'
+            }
         };
-
         processCode = processCode.replaceAll('<!--extra-->',processCoverExtra);
-
-
-
         var processPages = '';
         for (var i=0;i < this.state.webstorie.pages.length;i++){
             processPages += webstoriespage_base
-                .replaceAll('<!--key-->',i)
-                .replaceAll('<!--titulo-->',this.state.webstorie.pages[i].text1)
-                .replaceAll('<!--img-->',this.state.webstorie.pages[i].image)
-                .replaceAll('<!--texto-->',this.state.webstorie.pages[i].text2);
+                .replaceAll('<!--key-->',i);
+
+            var processPageExtra = '';
+            for (var j=0;j < this.state.webstorie.pages[i].extra.length;j++){
+                let extra = this.state.webstorie.pages[i].extra[j];
+                switch (extra.type) {
+                    case 'upload':
+                        processPageExtra += '<img src="'+extra.value+'" />'
+                    break;
+                    case 'text':
+                        processPageExtra += '<h2>'+extra.value+'</h2>'
+                    break;
+                    case 'textarea':
+                        processPageExtra += '<p>'+extra.value+'</p>'
+                    break;
+                    default:
+                        processPageExtra += '<div>'+extra.value+'</div>'
+                }
+            };
+
+            processPages = processPages.replaceAll('<!--extra-->',processPageExtra);
         };
 
         processCode = processCode.replaceAll('<!-- amp-paginas-aqui -->',processPages)
@@ -258,8 +278,6 @@ class Back extends React.Component {
         this.setState({ showcode: "data:text/html;charset=utf-8," + escape(processCode) });
         this.sendJson();
     }
-
-    
 
     
 
@@ -307,24 +325,23 @@ class Back extends React.Component {
                         return <DynamicInput key={i} input={extra} />            
                     })} 
                     
-                    <button onClick={() => this.renderInput('text')} >Titulo</button>
-                    <button onClick={() => this.renderInput('textarea')} >Paragrafo</button>
-                    <button onClick={() => this.renderInput('upload')} >Imagem</button> 
+                    <button onClick={() => this.renderInput(this.objWebStorie.cover,'text','cover.extra')} >Titulo</button>
+                    <button onClick={() => this.renderInput(this.objWebStorie.cover,'textarea','cover.extra')} >Paragrafo</button>
+                    <button onClick={() => this.renderInput(this.objWebStorie.cover,'upload','cover.extra')} >Imagem</button> 
                 </fieldset>
                 
                 
                 {this.state.webstorie.pages.map((page, i) => (
-                  <div key={i}>
-                    <label>
-                        <input index={i} id={"page"+i} name="image" placeholder="Imagem" type="file" onChange={this.handleFileChange} />
-                    </label>
-                    <label>
-                    <input name={"pages."+i+".text1"} value={this.state.webstorie.pages[i].text1} onChange={this.changeInput} placeholder="Texto" type="text" />
-                    </label>
-                    <label>
-                    <input name={"pages."+i+".text2"} value={this.state.webstorie.pages[i].text2} onChange={this.changeInput}  placeholder="Texto" type="text" />
-                    </label>
-                  </div>
+                  <fieldset key={i}>
+                    <legend>Pagina {i+1}</legend>
+                    {page.extra.map((extra, j) => {
+                        extra.change = this.setChangeTrigger(extra.type);
+                        return <DynamicInput key={j} input={extra} />            
+                    })}
+                    <button onClick={() => this.renderInput(this.objWebStorie.pages[i],'text','pages.'+i+'.extra')} >Titulo</button>
+                    <button onClick={() => this.renderInput(this.objWebStorie.pages[i],'textarea','pages.'+i+'.extra')} >Paragrafo</button>
+                    <button onClick={() => this.renderInput(this.objWebStorie.pages[i],'upload','pages.'+i+'.extra')} >Imagem</button> 
+                  </fieldset>
                 ))}
 
                 <div>
