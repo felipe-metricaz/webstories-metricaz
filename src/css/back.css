@@ -2,6 +2,16 @@ section {
 	display: flex;
 	justify-content: space-around;
 }
+.side-properties{
+	display: flex;
+	flex-direction: column;
+	justify-content:space-between;
+}
+.side-properties>div{
+	max-height: 50vh;
+	overflow: hidden;
+	overflow-y: auto;
+}
 label{
 	display: block;
 }

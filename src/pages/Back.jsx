@@ -307,45 +307,62 @@ class Back extends React.Component {
                 <iframe id="iframestorie" width="360" height="640" src={this.state.showcode} ></iframe>
                 <textarea style={{display: "none"}} name="" id="areacodigo" value={this.state.areacode}  />
             </div>
-            <div>
-                <label>
-                    <input name="name" value={this.state.webstorie.name} onChange={this.changeInput} placeholder="Titulo do WebStorie" type="text" />
-                </label>
-                <fieldset id="coverfield">
-                    <legend>Capa</legend>
+            <div className="side-properties">
+                <div className="properties">
                     <label>
-                        Imagem de fundo <br />
-                        <input name="cover.img" placeholder="Imagem" type="file" onChange={this.handleFileChange} />
+                        <input name="name" value={this.state.webstorie.name} onChange={this.changeInput} placeholder="Titulo do WebStorie" type="text" />
                     </label>
-                    <label>
-                        <input name="cover.titulo" value={this.state.webstorie.cover.titulo} onChange={this.changeInput} placeholder="Titulo" type="text" />
-                    </label>  
-                    {this.state.webstorie.cover.extra.map((extra, i) => {
-                        extra.change = this.setChangeTrigger(extra.type);
-                        return <DynamicInput key={i} input={extra} />            
-                    })} 
-                    
-                    <button onClick={() => this.renderInput(this.objWebStorie.cover,'text','cover.extra')} >Titulo</button>
-                    <button onClick={() => this.renderInput(this.objWebStorie.cover,'textarea','cover.extra')} >Paragrafo</button>
-                    <button onClick={() => this.renderInput(this.objWebStorie.cover,'upload','cover.extra')} >Imagem</button> 
-                </fieldset>
-                
-                
-                {this.state.webstorie.pages.map((page, i) => (
-                  <fieldset key={i}>
-                    <legend>Pagina {i+1}</legend>
-                    {page.extra.map((extra, j) => {
-                        extra.change = this.setChangeTrigger(extra.type);
-                        return <DynamicInput key={j} input={extra} />            
-                    })}
-                    <button onClick={() => this.renderInput(this.objWebStorie.pages[i],'text','pages.'+i+'.extra')} >Titulo</button>
-                    <button onClick={() => this.renderInput(this.objWebStorie.pages[i],'textarea','pages.'+i+'.extra')} >Paragrafo</button>
-                    <button onClick={() => this.renderInput(this.objWebStorie.pages[i],'upload','pages.'+i+'.extra')} >Imagem</button> 
-                  </fieldset>
-                ))}
+                    <fieldset id="coverfield">
+                        <legend>Capa</legend>
+                        <label>
+                            Imagem de fundo <br />
+                            <input name="cover.img" placeholder="Imagem" type="file" onChange={this.handleFileChange} />
+                        </label>
+                        <label>
+                            <input name="cover.titulo" value={this.state.webstorie.cover.titulo} onChange={this.changeInput} placeholder="Titulo" type="text" />
+                        </label>  
+                        {this.state.webstorie.cover.extra.map((extra, i) => {
+                            extra.change = this.setChangeTrigger(extra.type);
+                            return <DynamicInput key={i} input={extra} />            
+                        })} 
+                        
+                        <button onClick={() => this.renderInput(this.objWebStorie.cover,'text','cover.extra')} >Titulo</button>
+                        <button onClick={() => this.renderInput(this.objWebStorie.cover,'textarea','cover.extra')} >Paragrafo</button>
+                        <button onClick={() => this.renderInput(this.objWebStorie.cover,'upload','cover.extra')} >Imagem</button> 
+                    </fieldset>
+                    {this.state.webstorie.pages.map((page, i) => (
+                      <fieldset key={i}>
+                        <legend>Pagina {i+1}</legend>
+                        {page.extra.map((extra, j) => {
+                            extra.change = this.setChangeTrigger(extra.type);
+                            return <DynamicInput key={j} input={extra} />            
+                        })}
+                        <button onClick={() => this.renderInput(this.objWebStorie.pages[i],'text','pages.'+i+'.extra')} >Titulo</button>
+                        <button onClick={() => this.renderInput(this.objWebStorie.pages[i],'textarea','pages.'+i+'.extra')} >Paragrafo</button>
+                        <button onClick={() => this.renderInput(this.objWebStorie.pages[i],'upload','pages.'+i+'.extra')} >Imagem</button> 
+                      </fieldset>
+                    ))}
 
+                    <div>
+                        <button onClick={this.plusPageClick} >+ Page</button>
+                    </div>
+                </div>
                 <div>
-                    <button onClick={this.plusPageClick} >+ Page</button>
+                    <div><b>Estilo Capa</b></div>
+                    <fieldset>
+                        <legend>Titulo</legend>
+                        <div>Tamanho: <input type="number" value="37" min="12" max="80" /></div>
+                        <div>Color: <input type="color" value="#FFFFFF" /></div>
+                        <div>Fonte: 
+                            <select name="font" className="browser-default">
+                                <option value="Roboto">Roboto</option>
+                                <option value="Anton">Anton</option>
+                                <option value="Work Sans">Work Sans</option>
+                            </select>
+                        </div>
+                        <div>Largura: <input type="range"  min="10" max="100" step="10" className="browser-default" /></div>
+                        <div>Altura: <input type="range"  min="10" max="100" step="10" className="browser-default" /></div>
+                    </fieldset>
                 </div>
             </div>
         </section>
